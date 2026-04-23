@@ -1,2 +1,2 @@
--- vim.lsp.enable "expert"
+vim.lsp.enable "expert"
 return {}
