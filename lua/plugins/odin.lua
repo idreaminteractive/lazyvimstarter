@@ -6,3 +6,4 @@ require("lspconfig").ols.setup({
     },
   },
 })
+return {}
