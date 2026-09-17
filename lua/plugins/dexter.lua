@@ -1,13 +1,35 @@
--- vim.lsp.config('dexter', {
---   cmd = { 'dexter', 'lsp' },
---   root_markers = { '.dexter.db', '.git', 'mix.exs' },
---   filetypes = { 'elixir', 'heex' },
---   init_options = {
---     followDelegates = true, -- jump through defdelegate to the target function
---     -- stdlibPath = "",      -- override Elixir stdlib path (auto-detected)
---     -- debug = false,        -- verbose logging to stderr (view with :LspLog)
---   },
--- })
---
--- vim.lsp.enable 'dexter'
+vim.lsp.config("dexter", {
+  cmd = { "dexter", "lsp" },
+  root_markers = { ".dexter.db", ".git", "mix.exs", ".dexter/dexter.db" },
+  filetypes = { "elixir", "heex", "eelixir" },
+  init_options = {
+    followDelegates = true, -- jump through defdelegate to the target function
+    -- stdlibPath = "",      -- override Elixir stdlib path (auto-detected)
+    -- debug = false,        -- verbose logging to stderr (view with :LspLog)
+  },
+})
+
+vim.lsp.enable("dexter")
+
+vim.api.nvim_create_autocmd("LspAttach", {
+  group = vim.api.nvim_create_augroup("my.lsp", {}),
+
+  callback = function(args)
+    local opts = { remap = false }
+    local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
+    local builtin = require("telescope.builtin")
+
+    -- along with your other config
+
+    if client:supports_method("textDocument/formatting") then
+      -- the most important part
+      vim.api.nvim_create_autocmd("BufWritePre", {
+        buffer = args.buf,
+        callback = function()
+          vim.lsp.buf.format({ bufnr = args.buf, id = client.id, timeout_ms = 5000 })
+        end,
+      })
+    end
+  end,
+})
 return {}
